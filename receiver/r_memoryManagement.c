@@ -3,3 +3,4 @@
 //
 
 #include "r_memoryManagement.h"
+//TODO Free function for the ring buffer when reading is done

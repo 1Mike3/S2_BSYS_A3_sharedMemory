@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     size_t bufferSize = 0;
     if(-1 == manageParameters(argc, argv, &bufferSize)){
         printf("[R] Error in manageParameters\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     return 0;
