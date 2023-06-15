@@ -4,9 +4,6 @@
 
 #include "s_memoryManagement.h"
 #include "../shared/definitions.h"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/shm.h>
 
 
 #pragma region Creating Ring Buffer
@@ -25,6 +22,42 @@ ring_buffer * createRingBuffer(size_t bufferSize){
 }
 
 #pragma endregion Creating Ring Buffer
+
+
+#pragma region Creating Shared Memory
+short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress){
+    //generating key
+    *key = ftok("./keyGen", 'R');
+if(*key == -1){
+    printf("[S] Error in ftok\n");
+    perror("[S] PError in ftok: ");
+    return -1;
+}
+
+
+// generate the shared memory identifier
+    *shmid_sharedMemoryID = shmget(*key, *bufferSize, 0644 | IPC_CREAT);
+    if(*shmid_sharedMemoryID == -1){
+        printf("[S] Error in shmget\n");
+        perror("[S] PError in shmget: ");
+        return -1;
+    }
+
+//attach the shared memory
+    *shmaddr_sharedMemoryAddress = shmat(*shmid_sharedMemoryID, NULL,0 );
+    if(*shmaddr_sharedMemoryAddress == (void *) -1){
+        printf("[S] Error in shmat\n");
+        perror("[S] Perror in shmat: ");
+        return -1;
+    }
+
+    return 0;
+}
+
+
+
+#pragma endregion Creating Shared Memory
+
 
 #pragma region cleanup
 void cleanup(int shmId, void *shmAddr) {
