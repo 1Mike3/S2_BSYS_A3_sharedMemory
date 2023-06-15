@@ -8,6 +8,7 @@
 
 #pragma region Creating Ring Buffer
 
+//obsolete
 ring_buffer * createRingBuffer(size_t bufferSize){
     ring_buffer * buf = malloc(sizeof(ring_buffer));
     buf->buffer = calloc(bufferSize, sizeof(char));
@@ -26,8 +27,7 @@ ring_buffer * createRingBuffer(size_t bufferSize){
 
 #pragma region Creating Shared Memory
 short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress){
-    //generating key
-    *key = ftok("./keyGen", 'R');
+
 if(*key == -1){
     printf("[S] Error in ftok\n");
     perror("[S] PError in ftok: ");
@@ -45,7 +45,7 @@ if(*key == -1){
 
 //attach the shared memory
     *shmaddr_sharedMemoryAddress = shmat(*shmid_sharedMemoryID, NULL,0 );
-    if(*shmaddr_sharedMemoryAddress == (void *) -1){
+    if(*shmaddr_sharedMemoryAddress == (void *) -1  || *shmaddr_sharedMemoryAddress == NULL){
         printf("[S] Error in shmat\n");
         perror("[S] Perror in shmat: ");
         return -1;

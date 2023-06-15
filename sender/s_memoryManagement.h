@@ -13,6 +13,7 @@
 #include <sys/shm.h>
 #include <errno.h>
 
+//obsolete
 ring_buffer * createRingBuffer(size_t bufferSize);
 
 short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress);
