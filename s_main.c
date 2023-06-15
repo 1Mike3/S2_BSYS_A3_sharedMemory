@@ -79,14 +79,29 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
 #pragma region debug write test
 //writing some random stuff into the buffer and seeing if i can get it out
-    char * testString = "Hello World";
-    for(int i = 0; i < 11; i++){
+    char * testString = "This information has been written into the buffer";
+    for(int i = 0; i < 50; i++){
         ringBuffer->buffer[i] = testString[i];
     }
     printf("[S] Wrote %s into the buffer\n\n", ringBuffer->buffer);
 #pragma endregion debug write test
 
 
+
+//Debug BlockS
+    printf("Sender Debug\n\n");
+    //printing the shmid
+    printf("[S] shmid_sharedMemoryID_0: %d\n", shmid_sharedMemoryID_0);
+    printf("[S] shmid_sharedMemoryID_1: %d\n", shmid_sharedMemoryID_1);
+    printf("[S] key_0: %d\n", key_0);
+    printf("[S] key_1: %d\n", key_1);
+    printf("[S] shmaddr_sharedMemoryAddress_0: %p\n", shmaddr_sharedMemoryAddress_0);
+    printf("[S] shmaddr_sharedMemoryAddress_1: %p\n\n", shmaddr_sharedMemoryAddress_1);
+
+    shmdt(shmaddr_sharedMemoryAddress_0);
+    shmdt(shmaddr_sharedMemoryAddress_1);
+
+/*
 
 //print all the ringbuffer information in an #ifdef DEBUG block
 #pragma region debug block Print buffer
@@ -119,6 +134,7 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
 
 #pragma endregion cleanup
+*/
 
     return 0;
 }

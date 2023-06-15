@@ -44,14 +44,6 @@ int main(int argc, char *argv[]) {
 
 
 
-    ring_buffer * ringBuffer;
-    ringBuffer = shmaddr_sharedMemoryAddress_0;
-    ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
-
-
-
-
-
 
 #pragma region Creating Shared Memory
 //shared memory - structRingbuffer
@@ -71,6 +63,26 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 #pragma endregion Creating Shared Memory
+
+
+
+
+    ring_buffer * ringBuffer;
+    ringBuffer = shmaddr_sharedMemoryAddress_0;
+    ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
+
+
+
+
+
+    printf("Receiver Debug\n\n");
+    //Receiver Debug shmid
+    printf("[R] shmid_sharedMemoryID_0: %d\n", shmid_sharedMemoryID_0);
+    printf("[R] shmid_sharedMemoryID_1: %d\n", shmid_sharedMemoryID_1);
+    printf("[R] key_0: %d\n", key_0);
+    printf("[R] key_1: %d\n", key_1);
+    printf("[R] shmaddr_sharedMemoryAddress_0: %p\n", shmaddr_sharedMemoryAddress_0);
+    printf("[R] shmaddr_sharedMemoryAddress_1: %p\n\n", shmaddr_sharedMemoryAddress_1);
 
 
 
