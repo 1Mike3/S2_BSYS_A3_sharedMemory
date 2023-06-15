@@ -10,4 +10,6 @@
 
 ring_buffer * createRingBuffer(size_t bufferSize);
 
+void cleanup(int shmId, void *shmAddr);
+
 #endif //SHAREDMEMORY_S_MEMORYMANAGEMENT_H

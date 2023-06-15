@@ -53,19 +53,18 @@ int main(int argc, char *argv[]){
 #pragma region Creating Shared Memory
 
     //generating key
-      //for now using a static key for both processes(set at initialization), other approache file to key below
-            //ftok(argv[0], 'R'); another approach with file to key
+    key_t key = ftok("./keyGen", 'R');
 
 
 
         //VARS shmget :: getting the shared memory
-        key_t key = SHM_KEY;
-        int ishmflg = IPC_CREAT;
+
+
         //return Value
         int shmid_sharedMemoryID;
 
 // generate the shared memory identifier
-    shmid_sharedMemoryID = shmget(key, bufferSize, ishmflg);
+    shmid_sharedMemoryID = shmget(key, bufferSize, 0644 | IPC_CREAT);
     if(shmid_sharedMemoryID == -1){
         printf("[S] Error in shmget\n");
         perror("[S] PError in shmget: ");
@@ -74,13 +73,26 @@ int main(int argc, char *argv[]){
     }
 
 //attach the shared memory
-    shmaddr_sharedMemoryAddress = shmat(shmid_sharedMemoryID, NULL, SHM_RND);
-    ringBuffer->buffer = (char *)shmaddr_sharedMemoryAddress; //casting the address to the ringbuffer
+    shmaddr_sharedMemoryAddress = shmat(shmid_sharedMemoryID, NULL,0 );
+    if(shmaddr_sharedMemoryAddress == (void *) -1){
+        printf("[S] Error in shmat\n");
+        perror("[S] Perror in shmat: ");
+        printf("[S] Program Shutting Down!\n");
+        exit(EXIT_FAILURE);
+    }
+    cleanup(shmid_sharedMemoryID, shmaddr_sharedMemoryAddress);
+    //ringBuffer->buffer = shmaddr_sharedMemoryAddress; //casting t
+    // the address to the ringbuffer
+
 
 
 
 #pragma region debug write test
+//writing some random stuff into the buffer and seeing if i can get it out
 #pragma endregion debug write test
+
+#pragma region debug detch and
+
 
 
     //print all the ringbuffer information in an #ifdef DEBUG block
@@ -96,6 +108,8 @@ int main(int argc, char *argv[]){
 
 #endif
 #pragma endregion DEBUG
+
+
 
     return 0;
 }

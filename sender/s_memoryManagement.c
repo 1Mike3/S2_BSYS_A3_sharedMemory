@@ -6,7 +6,7 @@
 #include "../shared/definitions.h"
 #include <fcntl.h>
 #include <sys/stat.h>
-
+#include <sys/shm.h>
 
 
 #pragma region Creating Ring Buffer
@@ -26,6 +26,21 @@ ring_buffer * createRingBuffer(size_t bufferSize){
 
 #pragma endregion Creating Ring Buffer
 
+#pragma region cleanup
+void cleanup(int shmId, void *shmAddr) {
+    // Detach from the shared memory segment
+    if (shmdt(shmAddr) == -1) {
+        perror("[S] shmdt failed");
+        // handle the error...
+        exit(EXIT_FAILURE);
+    }
 
+    // Mark the segment to be destroyed
+    if (shmctl(shmId, IPC_RMID, NULL) == -1) {
+        perror("[S] shmctl failed");
+        exit(EXIT_FAILURE);
+    }
+}
+#pragma endregion cleanup
 
 
