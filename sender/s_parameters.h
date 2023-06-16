@@ -18,5 +18,5 @@
  * @param byteSize The size of the buffer in bytes
  * @return -1 failed , 0 success
  */
-short manageParameters(int argc, char *argv[], size_t *byteSize);
+short manageParameters(int argc, char *argv[], size_t *byteSize, char ** data);
 #endif //SHAREDMEMORY_S_PARAMETERS_H

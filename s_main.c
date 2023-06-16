@@ -15,6 +15,8 @@ int main(int argc, char *argv[]){
 #pragma region Variables
 //Manage Parameters
     size_t bufferSize = 0;
+    //Pointer to the data
+    char ** data = malloc(sizeof(char*));
 
 //Shared Memory ringbufferStruct
     int shmid_sharedMemoryID_0;
@@ -37,7 +39,7 @@ int main(int argc, char *argv[]){
 #pragma region Parameter Management
     //manage the parameters
 
-    if(-1 == manageParameters(argc, argv, &bufferSize)){
+    if(-1 == manageParameters(argc, argv, &bufferSize, data)){
         printf("[S] Error in manageParameters\n");
         printf("[S] Program Shutting Down!\n");
         exit(EXIT_FAILURE);
@@ -98,14 +100,8 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
 #pragma region write to buffer
 
-    //write to buffer
-    char * testString = malloc(sizeof(char) * 60);
-    for(int i = 0; i < 50; i++){
-        testString[i] = 'a';
-    }
-    testString[51] = EOF;
 
-    ringbuffer_write(ringBuffer, testString);
+    ringbuffer_write(ringBuffer, *data);
 
     //Old Testwrite to Buffer
     /*
@@ -118,7 +114,8 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
      */
 #pragma endregion debug write test
 
-
+    free(*data);
+    free(data);
 
 //Debug BlockS
 #if DEBUG
@@ -134,6 +131,8 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
     shmdt(shmaddr_sharedMemoryAddress_0);
     shmdt(shmaddr_sharedMemoryAddress_1);
 #endif
+
+    //OLD
 /*
 
 //print all the ringbuffer information in an #ifdef DEBUG block

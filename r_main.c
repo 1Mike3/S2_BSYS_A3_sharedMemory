@@ -135,3 +135,6 @@ int main(int argc, char *argv[]) {
 }
 
 //TODO add check so the reciever waits for the initializing of the ringbuffer until the sender has spawned
+
+
+//TODO maybe bug if when writing data in parameter function not + 1 strncpy size

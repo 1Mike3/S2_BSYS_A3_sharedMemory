@@ -70,7 +70,7 @@ short ringbuffer_write(ring_buffer * buf,char * data){
 
     char * workingCharPointer = data;
 
-    while ( (*workingCharPointer != EOF) && (*workingCharPointer != '\0') ) {
+    while ( (*(workingCharPointer +buf->head) != EOF) && (*(workingCharPointer +buf->head) != '\0') ) {
 
         //check if buffer is full
         if(buf->head == buf->tail && buf->overflowStateBool == true){
@@ -84,7 +84,7 @@ short ringbuffer_write(ring_buffer * buf,char * data){
         }
 
         //write to buffer
-        buf->buffer[buf->head] = *workingCharPointer;
+        buf->buffer[buf->head] = *(workingCharPointer +buf->head);
         buf->head = (buf->head + 1) % (int)buf->buffer_size; //Headpointer loops back to 0 if it reaches the end of the buffer
 
 
