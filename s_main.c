@@ -4,13 +4,15 @@
 #include "s_memoryManagement.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 #define DEBUG 1
 
 int main(int argc, char *argv[]){
+    printf("[S] Hello i am the sender, my PID is : %i\n\n", getpid());
 
-//Variables
+#pragma region Variables
 //Manage Parameters
     size_t bufferSize = 0;
 
@@ -22,6 +24,14 @@ int main(int argc, char *argv[]){
     int shmid_sharedMemoryID_1;
     key_t key_1 = ftok("../shared/keyGen2", 'R');
     void * shmaddr_sharedMemoryAddress_1 = NULL;
+
+    //Error Case ftok
+    if(key_0 == -1 || key_1 == -1){
+        printf("[S] Error in ftok\n");
+        printf("[S] Program Shutting Down!\n");
+        exit(EXIT_FAILURE);
+    }
+#pragma endregion Variables
 
 
 #pragma region Parameter Management
@@ -68,27 +78,50 @@ if(retVal_create_Shared_0 == -1) {
 
 
 
-
-
+#pragma region setting up the ringbuffer
+//setting up the ringbuffer
 ring_buffer * ringBuffer;
 ringBuffer = shmaddr_sharedMemoryAddress_0;
 ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
+#pragma endregion setting up the ringbuffer
 
 
 
+#pragma region init ringbuffer
+    ringbuffer_init(ringBuffer, bufferSize);
+#if DEBUG
+    printf("[S] Ringbuffer initialized\n");
+#endif
+#pragma endregion init ringbuffer
 
-#pragma region debug write test
+
+
+#pragma region write to buffer
+
+    //write to buffer
+    char * testString = malloc(sizeof(char) * 60);
+    for(int i = 0; i < 50; i++){
+        testString[i] = 'a';
+    }
+    testString[51] = EOF;
+
+    ringbuffer_write(ringBuffer, testString);
+
+    //Old Testwrite to Buffer
+    /*
 //writing some random stuff into the buffer and seeing if i can get it out
     char * testString = "This information has been written into the buffer";
     for(int i = 0; i < 50; i++){
         ringBuffer->buffer[i] = testString[i];
     }
     printf("[S] Wrote %s into the buffer\n\n", ringBuffer->buffer);
+     */
 #pragma endregion debug write test
 
 
 
 //Debug BlockS
+#if DEBUG
     printf("Sender Debug\n\n");
     //printing the shmid
     printf("[S] shmid_sharedMemoryID_0: %d\n", shmid_sharedMemoryID_0);
@@ -100,7 +133,7 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
     shmdt(shmaddr_sharedMemoryAddress_0);
     shmdt(shmaddr_sharedMemoryAddress_1);
-
+#endif
 /*
 
 //print all the ringbuffer information in an #ifdef DEBUG block

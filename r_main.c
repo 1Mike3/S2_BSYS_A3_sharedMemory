@@ -9,11 +9,14 @@
 #include "r_memoryManagement.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define DEBUG 1
 
 int main(int argc, char *argv[]) {
+    printf("[R] Hello i am the receiver, my PID is : %i\n\n", getpid());
 
+#pragma region Variables
 //Variables
 //Manage Parameters
     size_t bufferSize = 0;
@@ -27,6 +30,13 @@ int main(int argc, char *argv[]) {
     key_t key_1 = ftok("../shared/keyGen2", 'R');
     void * shmaddr_sharedMemoryAddress_1 = NULL;
 
+    //Error Case ftok
+    if(key_0 == -1 || key_1 == -1){
+        printf("[R] Error in ftok\n");
+        printf("[R] Program Shutting Down!\n");
+        exit(EXIT_FAILURE);
+    }
+#pragma endregion Variables
 
 #pragma region Parameter Management
     if(-1 == manageParameters(argc, argv, &bufferSize)){
@@ -41,7 +51,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 #pragma endregion Parameter Management
-
 
 
 
@@ -66,11 +75,11 @@ int main(int argc, char *argv[]) {
 
 
 
-
+#pragma region create Ring Buffer
     ring_buffer * ringBuffer;
     ringBuffer = shmaddr_sharedMemoryAddress_0;
     ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
-
+#pragma endregion create Ring Buffer
 
 
 
@@ -113,7 +122,6 @@ int main(int argc, char *argv[]) {
 
 
 
-
 #pragma region cleanup
 
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
@@ -123,8 +131,7 @@ int main(int argc, char *argv[]) {
 
 
 
-
-
     return 0;
 }
 
+//TODO add check so the reciever waits for the initializing of the ringbuffer until the sender has spawned

@@ -37,6 +37,25 @@ short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sha
 #pragma endregion Creating Shared Memory
 
 
+#pragma region init Ring Buffer
+
+
+short ringbuffer_init(ring_buffer * buf, size_t bufferSize){
+
+    buf->buffer[0] = '\0';
+    buf->buffer_size = bufferSize;
+    buf->head = 0;
+    buf->tail = 0;
+    buf->overflowStateBool = false;
+    buf->emptyStateBool = true;
+    buf->sem_empty = NULL;
+    buf->sem_full = NULL;
+    buf->mutex = NULL;
+    return 0;
+}
+
+#pragma endregion init Ring Buffer
+
 
 
 

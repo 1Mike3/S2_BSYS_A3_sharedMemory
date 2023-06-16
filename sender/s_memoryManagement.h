@@ -14,9 +14,11 @@
 #include <errno.h>
 
 //obsolete
-ring_buffer * createRingBuffer(size_t bufferSize);
+short ringbuffer_init(ring_buffer * buf, size_t bufferSize);
 
 short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress);
+
+short ringbuffer_write(ring_buffer * buf,char * data);
 
 void cleanup(int shmId, void *shmAddr);
 
