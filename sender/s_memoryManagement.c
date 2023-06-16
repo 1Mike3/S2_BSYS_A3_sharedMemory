@@ -12,11 +12,7 @@
 #pragma region Creating Shared Memory
 short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress){
 
-if(*key == -1){
-    printf("[S] Error in ftok\n");
-    perror("[S] PError in ftok: ");
-    return -1;
-}
+
 
 
 // generate the shared memory identifier
@@ -66,11 +62,25 @@ short ringbuffer_init(ring_buffer * buf, size_t bufferSize){
 
 
 
-short ringbuffer_write(ring_buffer * buf,char * data){
+short ringbuffer_write(ring_buffer * buf){
 
-    char * workingCharPointer = data;
 
-    while ( (*(workingCharPointer +buf->head) != EOF) && (*(workingCharPointer +buf->head) != '\0') ) {
+    char * stdInBuf= calloc(buf->buffer_size,sizeof(char));
+ char * retVal_fgets =  fgets(stdInBuf, (int)buf->buffer_size, stdin);
+ if(retVal_fgets == NULL){
+     printf("[S] Error in fgets\n");
+     perror("[S] PError in fgets: ");
+     return -1;
+    }
+
+    char  workingCharPointer = stdInBuf[0];
+
+
+
+    while ( workingCharPointer != EOF && workingCharPointer != '\0' ) {
+
+        printf("a\n\n");
+
 
         //check if buffer is full
         if(buf->head == buf->tail && buf->overflowStateBool == true){
@@ -84,7 +94,7 @@ short ringbuffer_write(ring_buffer * buf,char * data){
         }
 
         //write to buffer
-        buf->buffer[buf->head] = *(workingCharPointer +buf->head);
+        buf->buffer[buf->head] = workingCharPointer;
         buf->head = (buf->head + 1) % (int)buf->buffer_size; //Headpointer loops back to 0 if it reaches the end of the buffer
 
 
@@ -92,6 +102,7 @@ short ringbuffer_write(ring_buffer * buf,char * data){
             buf->overflowStateBool = true;
         }
 
+        workingCharPointer = stdInBuf[buf->head];
     }
 
   return 0;
@@ -117,5 +128,6 @@ void cleanup(int shmId, void *shmAddr) {
     }
 }
 #pragma endregion cleanup
+
 
 

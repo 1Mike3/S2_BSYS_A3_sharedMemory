@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
 //Manage Parameters
     size_t bufferSize = 0;
     //Pointer to the data
-    char ** data = malloc(sizeof(char*));
+
 
 //Shared Memory ringbufferStruct
     int shmid_sharedMemoryID_0;
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 #pragma region Parameter Management
     //manage the parameters
 
-    if(-1 == manageParameters(argc, argv, &bufferSize, data)){
+    if(-1 == manageParameters(argc, argv, &bufferSize)){
         printf("[S] Error in manageParameters\n");
         printf("[S] Program Shutting Down!\n");
         exit(EXIT_FAILURE);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
 if(retVal_create_Shared_0 == -1) {
     printf("[S] Error in create_shared_memory\n");
     printf("[S] Program Shutting Down!\n");
-    exit(EXIT_FAILURE);
+    cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
 }
 
 //shared memory - Buffer
@@ -74,7 +74,8 @@ if(retVal_create_Shared_0 == -1) {
     if(retVal_create_Shared_1 == -1) {
         printf("[S] Error in create_shared_memory\n");
         printf("[S] Program Shutting Down!\n");
-        exit(EXIT_FAILURE);
+        goto cleanupLabel;
+
 }
 #pragma endregion Creating Shared Memory
 
@@ -101,8 +102,12 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 #pragma region write to buffer
 
 
-    ringbuffer_write(ringBuffer, *data);
-
+    short retVal_ringbufferWrite = ringbuffer_write(ringBuffer);
+if(retVal_ringbufferWrite == -1){
+    printf("[S] Error in ringbuffer_write\n");
+    printf("[S] Program Shutting Down!\n");
+    goto cleanupLabel;
+}
     //Old Testwrite to Buffer
     /*
 //writing some random stuff into the buffer and seeing if i can get it out
@@ -114,8 +119,7 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
      */
 #pragma endregion debug write test
 
-    free(*data);
-    free(data);
+
 
 //Debug BlockS
 #if DEBUG
@@ -162,11 +166,17 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
 #pragma region cleanup
 
-    cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
-    cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
+
 
 #pragma endregion cleanup
 */
 
     return 0;
+
+    cleanupLabel:
+
+    cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
+    cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
+    exit(EXIT_FAILURE);
+
 }
