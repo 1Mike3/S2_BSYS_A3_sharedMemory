@@ -56,6 +56,36 @@ short ringbuffer_init(ring_buffer * buf, size_t bufferSize){
 
 #pragma endregion init Ring Buffer
 
+//function to read from the ringbuffer and write to stdout
+#pragma region read from ringbuffer
+short read_from_ringbuffer(ring_buffer * buf, size_t readBufferSize){
+
+    //char * readBuffer = calloc(readBufferSize ,sizeof(char));
+    while(1) {  //while loop for continous reading
+
+
+        //check if the readBuffer is big enough
+        if (readBufferSize != buf->buffer_size) {
+            printf("\n[R] The requested Buffer Value does not match the allready allocated Value\n");
+            printf("[R] The Current Buffer Value is: %lu\n\n", buf->buffer_size);
+           // free(readBuffer);
+            return -1;
+        }
+
+        //read from the ringbuffer
+        while (buf->head != buf->tail){
+            buf->emptyStateBool = false;
+            fputc(buf->buffer[buf->tail], stdout);
+            buf->tail = (buf->tail + 1) % (int)buf->buffer_size;
+        }
+        //set the ringbuffer to empty
+        buf->emptyStateBool = true;
+    }
+
+    return 0;
+}
+#pragma endregion read from ringbuffer
+
 
 
 
@@ -63,16 +93,18 @@ short ringbuffer_init(ring_buffer * buf, size_t bufferSize){
 #pragma region cleanup
 void cleanup(int shmId, void *shmAddr) {
     // Detach from the shared memory segment
-    if (shmdt(shmAddr) == -1) {
-        perror("[R] shmdt failed");
-        // handle the error...
-        exit(EXIT_FAILURE);
+    if(shmAddr != NULL){ //only detach if the address is actually set
+        if (shmdt(shmAddr) == -1) {
+            perror("[R] shmdt failed");
+            exit(EXIT_FAILURE);
+        }
     }
-
     // Mark the segment to be destroyed
-    if (shmctl(shmId, IPC_RMID, NULL) == -1) {
-        perror("[R] shmctl failed");
-        exit(EXIT_FAILURE);
+    if(shmId != -1) { //only delete if the id is not initial Value
+        if (shmctl(shmId, IPC_RMID, NULL) == -1) {
+            perror("[R] shmctl failed");
+            exit(EXIT_FAILURE);
+        }
     }
 }
 #pragma endregion cleanup

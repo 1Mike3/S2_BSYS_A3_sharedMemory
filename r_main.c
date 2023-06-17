@@ -10,25 +10,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define DEBUG 1
 
+//I am saving the memory addresses to be freed in the event of a Signal here for easyier access
+//I know that global Variables are bad, but in this case it is saving me a lot of hassle and not causing any problems
+
+//Adresses SM
+//Struct
+int shmid_sharedMemoryID_0 = -1;
+void * shmaddr_sharedMemoryAddress_0 = NULL;
+//Shared Memory Buffer
+int shmid_sharedMemoryID_1 = -1;
+void * shmaddr_sharedMemoryAddress_1 = NULL;
+
+
+void sigint_handler(int sig) {
+    printf("[R] Received SIGINT, shutting down...\n");
+    cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
+    cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
+    exit(EXIT_SUCCESS);
+}
+
+
 int main(int argc, char *argv[]) {
-    printf("[R] Hello i am the receiver, my PID is : %i\n\n", getpid());
+#if DEBUG
+printf("[R] Hello i am the receiver, my PID is : %i\n\n", getpid());
+FILE * f =fopen("R_PID.txt", "w");
+fprintf(f, "%i", getpid());
+fclose(f);
+#endif
 
 #pragma region Variables
 //Variables
+
+//signals
+struct sigaction sa;
+sa.sa_handler = &sigint_handler;
+sa.sa_flags = SA_RESTART;   // Restart functions if interrupted by handler
+sigaction(SIGINT, &sa, NULL); // Install handler
+
 //Manage Parameters
     size_t bufferSize = 0;
 
-//Shared Memory ringbufferStruct
-    int shmid_sharedMemoryID_0;
-    key_t key_0 = ftok("../shared/keyGen", 'R');
-    void * shmaddr_sharedMemoryAddress_0 = NULL;
-    //Shared Memory Buffer
-    int shmid_sharedMemoryID_1;
-    key_t key_1 = ftok("../shared/keyGen2", 'R');
-    void * shmaddr_sharedMemoryAddress_1 = NULL;
+ //key generating
+key_t key_0 = ftok("../shared/keyGen", 'R');
+key_t key_1 = ftok("../shared/keyGen2", 'R');
 
     //Error Case ftok
     if(key_0 == -1 || key_1 == -1){
@@ -69,7 +97,7 @@ int main(int argc, char *argv[]) {
     if(retVal_create_Shared_1 == -1) {
         printf("[R] Error in create_shared_memory\n");
         printf("[R] Program Shutting Down!\n");
-        exit(EXIT_FAILURE);
+        goto cleanupLabel;
     }
 #pragma endregion Creating Shared Memory
 
@@ -120,18 +148,31 @@ int main(int argc, char *argv[]) {
 #endif
 #pragma endregion DEBUG
 
+    short retVal_read_f_ringbuf = read_from_ringbuffer(ringBuffer, bufferSize);
+    if(retVal_read_f_ringbuf == -1){
+        printf("[R] Error in read_from_ringbuffer\n");
+        printf("[R] Program Shutting Down!\n");
+        goto cleanupLabel;
+    }
+
 
 
 #pragma region cleanup
-
+//regular cleanup performed on exit
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
 
 #pragma endregion cleanup
 
 
-
     return 0;
+
+    //Error Case goto, irregular cleanup performed on exit after a failure
+    cleanupLabel:
+
+    cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
+    cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
+    exit(EXIT_FAILURE);
 }
 
 //TODO add check so the reciever waits for the initializing of the ringbuffer until the sender has spawned
