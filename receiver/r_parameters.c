@@ -3,9 +3,9 @@
 //
 
 #include "r_parameters.h"
+#include "definitions.h"
 
 
-#define DEBUG 1
 
 short manageParameters(int argc, char *argv[], size_t *byteSize) {
 

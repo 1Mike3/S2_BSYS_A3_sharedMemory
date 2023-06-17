@@ -5,6 +5,7 @@
 #include "s_memoryManagement.h"
 #include "../shared/definitions.h"
 
+#include <unistd.h>
 
 
 
@@ -69,59 +70,59 @@ short ringbuffer_write(ring_buffer * buf){
     char * retVal_fgets;
     char  workingCharPointer = '\0';
 
-    while (1) {
-        retVal_fgets = fgets(stdInBuf, (int) buf->buffer_size, stdin);
-
-        /*
-        if (retVal_fgets == NULL) {
-            printf("[S] Error in fgets\n");
-            perror("[S] PError in fgets: ");
-            return -1;
-        }
-*/
-
-        workingCharPointer = stdInBuf[0];
-
-
-        while (workingCharPointer != EOF && workingCharPointer != '\0' && workingCharPointer != NULL) {
 
 
 
+                retVal_fgets = fgets(stdInBuf, (int) buf->buffer_size, stdin);
 
-            //check if buffer is full
-            if (buf->head == buf->tail && buf->overflowStateBool == true) {
-                printf("[S] Buffer is full\n");
-                return -1;
-            }
+                /*
+                if (retVal_fgets == NULL) {
+                    printf("[S] Error in fgets\n");
+                    perror("[S] PError in fgets: ");
+                    return -1;
+                }
+        */
 
-            //check if buffer is empty
-            if (buf->head == buf->tail && buf->emptyStateBool == true) {
-                buf->emptyStateBool = false;
-            }
-
-            //write to buffer
-            buf->buffer[buf->head] = workingCharPointer;
-            buf->head = (buf->head + 1) %
-                        (int) buf->buffer_size; //Headpointer loops back to 0 if it reaches the end of the buffer
+                workingCharPointer = stdInBuf[0];
 
 
-            if (buf->head == buf->tail) {
-                buf->overflowStateBool = true;
-            }
+                while (workingCharPointer != EOF && workingCharPointer != '\0' ) {
 
-            workingCharPointer = stdInBuf[buf->head];
-        }
 
-        //clearing the Values after a Write cycle
-        workingCharPointer = '\0';
-            //clearing the buffer
-            for(int i = 0; i < buf->buffer_size; i++){
-                stdInBuf[i] = '\0';
-            }
 
-    }
+
+                    //check if buffer is full
+                    if (buf->head == buf->tail && buf->overflowStateBool == true) {
+                        printf("[S] Buffer is full\n");
+                        return -1;
+                    }
+
+                    //check if buffer is empty
+                    if (buf->head == buf->tail && buf->emptyStateBool == true) {
+                        buf->emptyStateBool = false;
+                    }
+
+                    //write to buffer
+                    buf->buffer[buf->head] = workingCharPointer;
+                    buf->head = (buf->head + 1) %
+                                (int) buf->buffer_size; //Headpointer loops back to 0 if it reaches the end of the buffer
+
+
+                    if (buf->head == buf->tail) {
+                        buf->overflowStateBool = true;
+                    }
+
+                    workingCharPointer = stdInBuf[buf->head];
+                }
+
+                buf->buffer[buf->head] = workingCharPointer;
+
+
+
   return 0;
 }
+
+
 
 
 #pragma endregion write to Ring Buffer

@@ -9,7 +9,6 @@
 
 
 
-#define DEBUG 1
 
 //I am saving the memory addresses to be freed in the event of a Signal here for easyier access
 //I know that global Variables are bad, but in this case it is saving me a lot of hassle and not causing any problems
@@ -23,7 +22,9 @@ int shmid_sharedMemoryID_1 = -1;
 void * shmaddr_sharedMemoryAddress_1 = NULL;
 
 void sigint_handler(int sig){
-    printf("[S] Received SIGINT, freeing and shutting down...\n");
+    FILE * file = fopen("S_Logs.txt", "a+");
+    fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
+    fclose(file);
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
     exit(EXIT_SUCCESS);
@@ -32,10 +33,11 @@ void sigint_handler(int sig){
 int main(int argc, char *argv[]){
 #if DEBUG
     printf("[S] Hello i am the sender, my PID is : %i\n\n", getpid());
+#endif
     FILE * f =fopen("S_PID.txt", "w");
     fprintf(f, "%i", getpid());
     fclose(f);
-#endif
+
 #pragma region Variables
 //Manage Parameters
 
@@ -124,6 +126,7 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 #pragma endregion init ringbuffer
 
 
+    sleep(6);
 
 #pragma region write to buffer
 
@@ -143,7 +146,7 @@ if(retVal_ringbufferWrite == -1){
     }
     printf("[S] Wrote %s into the buffer\n\n", ringBuffer->buffer);
      */
-#pragma endregion debug write test
+#pragma endregion write to buffer
 
 
 

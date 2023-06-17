@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define DEBUG 1
+
 
 //I am saving the memory addresses to be freed in the event of a Signal here for easyier access
 //I know that global Variables are bad, but in this case it is saving me a lot of hassle and not causing any problems
@@ -27,7 +27,9 @@ void * shmaddr_sharedMemoryAddress_1 = NULL;
 
 
 void sigint_handler(int sig) {
-    printf("[R] Received SIGINT, shutting down...\n");
+    FILE * file = fopen("R_Logs.txt", "w");
+    fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
+    fclose(file);
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
     exit(EXIT_SUCCESS);
@@ -37,10 +39,11 @@ void sigint_handler(int sig) {
 int main(int argc, char *argv[]) {
 #if DEBUG
 printf("[R] Hello i am the receiver, my PID is : %i\n\n", getpid());
+#endif
 FILE * f =fopen("R_PID.txt", "w");
 fprintf(f, "%i", getpid());
 fclose(f);
-#endif
+
 
 #pragma region Variables
 //Variables
@@ -110,7 +113,7 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
 #pragma endregion create Ring Buffer
 
 
-
+#if DEBUG
 
     printf("Receiver Debug\n\n");
     //Receiver Debug shmid
@@ -120,7 +123,7 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
     printf("[R] key_1: %d\n", key_1);
     printf("[R] shmaddr_sharedMemoryAddress_0: %p\n", shmaddr_sharedMemoryAddress_0);
     printf("[R] shmaddr_sharedMemoryAddress_1: %p\n\n", shmaddr_sharedMemoryAddress_1);
-
+#endif
 
 
 

@@ -11,6 +11,8 @@ receiver and sender executable
 * Note to self: for your own sanity only work on s or r at a time
 * I created a shared folder which contains resources that are used by both S&R
 * allocating memory for both the ringbuffer structure and the ringbuffer itself
+* The programms generate a file each on startup containing the pid for easierer process management
+* 
 
 ## Programming notes
 * create ringbuffer should be changed to initalize ringbuffer as it is kinda useless now after the changes

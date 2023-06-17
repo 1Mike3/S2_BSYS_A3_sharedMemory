@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <semaphore.h>
 
+#define DEBUG 0
+
 // This is the ring buffer structure
 // It contains the head and tail pointers
 // It also contains the buffer itself
