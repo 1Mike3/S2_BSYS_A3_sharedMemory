@@ -28,7 +28,10 @@ ring_buffer * buf_cpy = NULL;
 
 extern void sigint_handler(int sig) {
     FILE * file = fopen("R_Logs.txt", "a");
-    fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
+    fprintf(file, "[R] Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
+#if DEBUG_SIG
+    fprintf(stderr, "[R] Received SIGINT and finished reading, freeing and shutting down, PID = %i\n", getpid());
+#endif
     fclose(file);
 
     if(buf_cpy != NULL)

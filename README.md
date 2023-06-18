@@ -14,7 +14,7 @@ receiver and sender executable
 * The programms generate a file each on startup containing the pid for easierer process management
 The PID is also saved in the ringbuffer structure for COM between Processes
 * I am Using Semaphores for the Read and Write operations to ensure that the ringbuffer is not accessed by multiple processes at the same time
-* 
+* If you don't want to see the Signal status messages Set DEBUG_SIG to 0 in the definitions.h header file
 
 ## Programming notes
 * create ringbuffer should be changed to initalize ringbuffer as it is kinda useless now after the changes

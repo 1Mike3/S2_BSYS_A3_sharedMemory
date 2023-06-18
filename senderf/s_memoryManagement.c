@@ -82,7 +82,7 @@ short ringbuffer_write(ring_buffer * buf){
                     }
 
                     //check if buffer is empty
-                    if (buf->head == buf->tail && buf->emptyStateBool == true) {
+                    if (buf->head != buf->tail && buf->emptyStateBool == true) {
                         buf->emptyStateBool = false;
                     }
 
@@ -102,6 +102,24 @@ short ringbuffer_write(ring_buffer * buf){
                 buf->buffer[buf->head] = workingCharPointer;
 
     sem_post(buf->sem_ptr);
+
+    //While loop to check if receiver is ready to receive Signal
+#if DEBUG_SIG
+fprintf(stderr, "[S] Waiting for receiver to be called to signal \"finished writing\" to it\n");
+#endif
+    while (true){
+        if(buf->pid_receiver == 0){ //do nothing if receiver is not called yet
+            sleep(1); // i know we shouldnt use sleep for synchronization but this is just to save resources, prog works without it
+        } else{ //after receiver has been called send the sigint signal to it to indicate that writing is finished
+            //after writing to the buffer is finished send SIGINT to receiver
+#if DEBUG_SIG
+            fprintf(stderr,"[S] Sending SIGINT to receiver\n");
+#endif
+            kill(buf->pid_receiver, SIGINT);
+            exit(EXIT_SUCCESS);
+        }
+    }
+
 
   return 0;
 }
