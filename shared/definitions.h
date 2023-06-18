@@ -11,7 +11,7 @@
 #include <semaphore.h>
 
 #define DEBUG 0
-#define DEBUG_SIG 1
+#define DEBUG_SIG 0
 #define SEM_NAME "/RICHARD" //name of the semaphore
 
 // This is the ring buffer structure

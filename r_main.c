@@ -60,6 +60,8 @@ struct sigaction sa;
 sa.sa_handler = &sigint_handler;
 sa.sa_flags = SA_RESTART;   // Restart functions if interrupted by handler
 sigaction(SIGINT, &sa, NULL); // Install handler
+sigaction(SIGCONT, &sa, NULL); // Install handler for SIGCONT
+
 
 //Manage Parameters
     size_t bufferSize = 0;

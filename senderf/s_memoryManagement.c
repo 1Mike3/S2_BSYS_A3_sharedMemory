@@ -47,81 +47,53 @@ short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sha
 
 short ringbuffer_write(ring_buffer * buf){
 
-
-    char * stdInBuf= calloc(buf->buffer_size,sizeof(char));
+    char * stdInBuf = calloc(buf->buffer_size,sizeof(char));
     char * retVal_fgets;
-    char  workingCharPointer = '\0';
-
-
-
+    int stdInBufIndex;
 
     sem_wait(buf->sem_ptr);
 
-                retVal_fgets = fgets(stdInBuf, (int) buf->buffer_size, stdin);
+    while ((retVal_fgets = fgets(stdInBuf, (int) buf->buffer_size, stdin)) != NULL) {
+        stdInBufIndex = 0;
+        while (stdInBuf[stdInBufIndex] != '\0') {
 
-                /*
-                if (retVal_fgets == NULL) {
-                    printf("[S] Error in fgets\n");
-                    perror("[S] PError in fgets: ");
-                    return -1;
-                }
-        */
+            // check if buffer is full
+            if (buf->head == buf->tail && buf->overflowStateBool == true) {
+                printf("[S] Buffer is full\n");
+                return -1;
+            }
 
-                workingCharPointer = stdInBuf[0];
+            // check if buffer is empty
+            if (buf->head != buf->tail && buf->emptyStateBool == true) {
+                buf->emptyStateBool = false;
+            }
 
+            // write to buffer
+            buf->buffer[buf->head] = stdInBuf[stdInBufIndex];
+            buf->head = (buf->head + 1) % buf->buffer_size; // Headpointer loops back to 0 if it reaches the end of the buffer
 
-                while (workingCharPointer != EOF && workingCharPointer != '\0' ) {
+            if (buf->head == buf->tail) {
+                buf->overflowStateBool = true;
+            }
 
-
-
-
-                    //check if buffer is full
-                    if (buf->head == buf->tail && buf->overflowStateBool == true) {
-                        printf("[S] Buffer is full\n");
-                        return -1;
-                    }
-
-                    //check if buffer is empty
-                    if (buf->head != buf->tail && buf->emptyStateBool == true) {
-                        buf->emptyStateBool = false;
-                    }
-
-                    //write to buffer
-                    buf->buffer[buf->head] = workingCharPointer;
-                    buf->head = (buf->head + 1) %
-                                (int) buf->buffer_size; //Headpointer loops back to 0 if it reaches the end of the buffer
-
-
-                    if (buf->head == buf->tail) {
-                        buf->overflowStateBool = true;
-                    }
-
-                    workingCharPointer = stdInBuf[buf->head];
-                }
-
-                buf->buffer[buf->head] = workingCharPointer;
+            stdInBufIndex++; // move to next character in stdInBuf
+        }
+    }
 
     sem_post(buf->sem_ptr);
+    free(stdInBuf);
 
-    //While loop to check if receiver is ready to receive Signal
-#if DEBUG_SIG
-fprintf(stderr, "[S] Waiting for receiver to be called to signal \"finished writing\" to it\n");
-#endif
+    // While loop to check if receiver is ready to receive Signal
     while (true){
-        if(buf->pid_receiver == 0){ //do nothing if receiver is not called yet
-            sleep(1); // i know we shouldnt use sleep for synchronization but this is just to save resources, prog works without it
-        } else{ //after receiver has been called send the sigint signal to it to indicate that writing is finished
-            //after writing to the buffer is finished send SIGINT to receiver
-#if DEBUG_SIG
-            fprintf(stderr,"[S] Sending SIGINT to receiver\n");
-#endif
+        if(buf->pid_receiver == 0){ // do nothing if receiver is not called yet
+            sleep(1);
+        } else{ // after receiver has been called send the sigint signal to it to indicate that writing is finished
             kill(buf->pid_receiver, SIGINT);
             exit(EXIT_SUCCESS);
         }
     }
 
-
-  return 0;
+    return 0;
 }
 
 
