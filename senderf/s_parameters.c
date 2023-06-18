@@ -34,7 +34,7 @@ short manageParameters(int argc, char *argv[], size_t *byteSize) {
 
                 break;
             default:
-                fprintf(stderr, "Usage: sender [-m bytesize] \n");
+                fprintf(stderr, "Usage: senderf [-m bytesize] \n");
                 return -1;
         }
     }

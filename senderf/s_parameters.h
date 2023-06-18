@@ -9,7 +9,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 
-//Function for managing the parameters of the sender
+//Function for managing the parameters of the senderf
 
 /**
  *

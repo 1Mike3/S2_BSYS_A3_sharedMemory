@@ -9,7 +9,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 
-//Function for managing the parameters of the receiver
+//Function for managing the parameters of the receiverf
 
 /**
  *

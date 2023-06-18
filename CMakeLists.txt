@@ -3,20 +3,26 @@ project(sharedMemory C)
 
 set(CMAKE_C_STANDARD 99)
 
-include_directories(sender/ shared/ receiver/)
+include_directories(senderf/ shared/ receiverf/)
 
+find_package(Threads REQUIRED)
 
 add_executable(sender
         s_main.c
-        sender/s_parameters.c
+        senderf/s_parameters.c
         shared/definitions.h
-        sender/s_memoryManagement.c
-        sender/s_memoryManagement.h shared/sharedFunctions.c shared/sharedFunctions.h)
+        senderf/s_memoryManagement.c
+        senderf/s_memoryManagement.h shared/sharedFunctions.c shared/sharedFunctions.h)
+
+target_link_libraries(sender rt Threads::Threads)
 
 add_executable(receiver
         r_main.c
-        receiver/r_parameters.c
+        receiverf/r_parameters.c
         shared/definitions.h
-        receiver/r_memoryManagement.c
-        receiver/r_memoryManagement.h shared/sharedFunctions.c shared/sharedFunctions.h)
+        receiverf/r_memoryManagement.c
+        receiverf/r_memoryManagement.h shared/sharedFunctions.c shared/sharedFunctions.h)
 
+target_link_libraries(receiver rt)
+
+target_link_libraries(receiver rt Threads::Threads)

@@ -25,16 +25,20 @@ typedef struct ring_buffer {
     int tail;  //tail is the next free position
     char * buffer; //the actual buffer
     size_t buffer_size; //size of the buffer in bytes
-    sem_t * sem_full; //semaphore containing the number of full bytes
-    sem_t * sem_empty; // semaphore containing the number of empty bytes
-    pthread_mutex_t * mutex; //Mutex for the mutual exclusion of the two processes
-    bool overflowStateBool; //a indicator signaling that the buffer is full
-    bool emptyStateBool; //a indicator signaling that the buffer is empty
+    //name of the semaphore can be found below in definitions.h
+    sem_t sem; //semaphore for mutual exclusion
+    sem_t * sem_ptr; //pointer to the semaphore
     pid_t pid_sender;  //the rescpective pids of the processes to enable communtication between them
     pid_t pid_receiver;
+    bool overflowStateBool; //a indicator signaling that the buffer is full
+    bool emptyStateBool; //a indicator signaling that the buffer is empty
+    bool sem_Init_Bool; //a indicator signaling that the semaphore is initialized
 } ring_buffer;
 
-//SHARED MEMORY
+
+#define SEM_NAME "/RICHARD" //name of the semaphore
+
+//SHARED MEMORY ... obsolete
 #define SHM_KEY 0x5555 //key for the shared memory
 
 #endif //SHAREDMEMORY_DEFINITIONS_H

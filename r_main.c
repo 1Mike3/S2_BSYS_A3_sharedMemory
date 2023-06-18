@@ -7,12 +7,11 @@
 
 #include "r_parameters.h"
 #include "r_memoryManagement.h"
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <unistd.h>
 #include <signal.h>
 #include "sharedFunctions.h"
-
+#include <fcntl.h>
 
 //I am saving the memory addresses to be freed in the event of a Signal here for easyier access
 //I know that global Variables are bad, but in this case it is saving me a lot of hassle and not causing any problems
@@ -24,12 +23,17 @@ void * shmaddr_sharedMemoryAddress_0 = NULL;
 //Shared Memory Buffer
 int shmid_sharedMemoryID_1 = -1;
 void * shmaddr_sharedMemoryAddress_1 = NULL;
-
+//not the actual buffer , just a second reference for cleanup
+ring_buffer * buf_cpy = NULL;
 
 void sigint_handler(int sig) {
     FILE * file = fopen("R_Logs.txt", "a");
     fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
     fclose(file);
+
+    if(buf_cpy != NULL)
+        cleanupSemaphore(buf_cpy);
+
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
     exit(EXIT_SUCCESS);
@@ -38,7 +42,7 @@ void sigint_handler(int sig) {
 
 int main(int argc, char *argv[]) {
 #if DEBUG
-printf("[R] Hello i am the receiver, my PID is : %i\n\n", getpid());
+printf("[R] Hello i am the receiverf, my PID is : %i\n\n", getpid());
 #endif
 FILE * f =fopen("R_PID.txt", "w");
 fprintf(f, "%i", getpid());
@@ -77,7 +81,7 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
     }
     if(bufferSize == 0){
         printf("[R] Buffer size is 0\n");
-        printf("[R] Correct Usage: receiver -m [Desired Byte-size > 0]\n");
+        printf("[R] Correct Usage: receiverf -m [Desired Byte-size > 0]\n");
         printf("[R] Program Shutting Down!\n");
         exit(EXIT_FAILURE);
     }
@@ -111,6 +115,11 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
     ringBuffer = shmaddr_sharedMemoryAddress_0;
     ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
+    //for cleanup
+        buf_cpy = ringBuffer;
+
+        //here would init ringbuf but it is already done in the sender so open semaphore
+    ringBuffer->sem_ptr = sem_open(SEM_NAME, 0, 0644, 1); //open semaphore
 
     ringBuffer->pid_receiver = getpid();
 #pragma endregion create Ring Buffer
@@ -154,13 +163,15 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
 #endif
 #pragma endregion DEBUG
 
+
+#pragma region read from ringbuffer
     short retVal_read_f_ringbuf = read_from_ringbuffer(ringBuffer, bufferSize);
     if(retVal_read_f_ringbuf == -1){
         printf("[R] Error in read_from_ringbuffer\n");
         printf("[R] Program Shutting Down!\n");
         goto cleanupLabel;
     }
-
+#pragma  endregion read from ringbuffer
 
 
 #pragma region cleanup
@@ -181,7 +192,7 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
     exit(EXIT_FAILURE);
 }
 
-//TODO add check so the reciever waits for the initializing of the ringbuffer until the sender has spawned
+//TODO add check so the reciever waits for the initializing of the ringbuffer until the senderf has spawned
 
 
 //TODO maybe bug if when writing data in parameter function not + 1 strncpy size

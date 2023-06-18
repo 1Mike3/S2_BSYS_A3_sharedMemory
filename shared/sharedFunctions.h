@@ -19,3 +19,4 @@
 short ringbuffer_init(ring_buffer * buf, size_t bufferSize);
 
 void cleanup(int shmId, void *shmAddr);
+void cleanupSemaphore(ring_buffer * buf);

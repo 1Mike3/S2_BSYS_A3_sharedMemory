@@ -21,11 +21,17 @@ void * shmaddr_sharedMemoryAddress_0 = NULL;
 //Shared Memory Buffer
 int shmid_sharedMemoryID_1 = -1;
 void * shmaddr_sharedMemoryAddress_1 = NULL;
+//not the actual buffer , just a second reference for cleanup
+ring_buffer * buf_cpy = NULL;
 
 void sigint_handler(int sig){
     FILE * file = fopen("S_Logs.txt", "a");
     fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
     fclose(file);
+
+    if(buf_cpy != NULL)
+        cleanupSemaphore(buf_cpy);
+
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
     cleanup(shmid_sharedMemoryID_1, shmaddr_sharedMemoryAddress_1);
     exit(EXIT_SUCCESS);
@@ -75,7 +81,7 @@ int main(int argc, char *argv[]){
     }
     if(bufferSize == 0){
         printf("[S] Buffer size is 0\n");
-        printf("[S] Correct Usage: sender -m [Desired Byte-size > 0]\n");
+        printf("[S] Correct Usage: senderf -m [Desired Byte-size > 0]\n");
         printf("[S] Program Shutting Down!\n");
         exit(EXIT_FAILURE);
     }
@@ -116,6 +122,9 @@ ring_buffer * ringBuffer;
 ringBuffer = shmaddr_sharedMemoryAddress_0;
 ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 
+//for cleanup
+buf_cpy = ringBuffer;
+
 #pragma endregion setting up the ringbuffer
 
 
@@ -128,8 +137,6 @@ ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
 #endif
 #pragma endregion init ringbuffer
 
-
-    sleep(6);
 
 #pragma region write to buffer
 
