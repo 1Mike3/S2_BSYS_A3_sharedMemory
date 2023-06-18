@@ -47,7 +47,7 @@ short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sha
 
 short ringbuffer_write(ring_buffer * buf){
 
-//TODO free calloc stdinBuf
+
     char * stdInBuf= calloc(buf->buffer_size,sizeof(char));
     char * retVal_fgets;
     char  workingCharPointer = '\0';
