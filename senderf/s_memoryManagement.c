@@ -55,6 +55,8 @@ short ringbuffer_write(ring_buffer * buf){
 
 
 
+    sem_wait(buf->sem_ptr);
+
                 retVal_fgets = fgets(stdInBuf, (int) buf->buffer_size, stdin);
 
                 /*
@@ -99,7 +101,7 @@ short ringbuffer_write(ring_buffer * buf){
 
                 buf->buffer[buf->head] = workingCharPointer;
 
-
+    sem_post(buf->sem_ptr);
 
   return 0;
 }

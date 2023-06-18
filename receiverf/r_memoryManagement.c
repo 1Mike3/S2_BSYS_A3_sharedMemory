@@ -3,8 +3,14 @@
 //
 
 #include "r_memoryManagement.h"
+#include <signal.h>
+#include "stdbool.h"
 
-
+bool SIGINT_Received = false;
+void signalHandlerSigint_Read(int sig){
+    printf("\n[R] Signal Handler: SIGINT\n");
+    SIGINT_Received = true;
+}
 
 #pragma region Creating Shared Memory
 short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sharedMemoryID,void ** shmaddr_sharedMemoryAddress){
@@ -44,7 +50,10 @@ short create_shared_memory(key_t * key,const size_t * bufferSize,int * shmid_sha
 short read_from_ringbuffer(ring_buffer * buf, size_t readBufferSize){
 
     //char * readBuffer = calloc(readBufferSize ,sizeof(char));
+    sem_wait(buf->sem_ptr);
+
     while(1) {  //while loop for continous reading
+        //will be interrupted by the signal handler
 
 
         //check if the readBuffer is big enough
@@ -65,7 +74,8 @@ short read_from_ringbuffer(ring_buffer * buf, size_t readBufferSize){
         buf->emptyStateBool = true;
     }
 
-    return 0;
+    sem_post(buf->sem_ptr);
+
 }
 #pragma endregion read from ringbuffer
 

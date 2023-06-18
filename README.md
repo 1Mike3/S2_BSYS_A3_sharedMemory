@@ -3,15 +3,17 @@
 ## Compile Information
 * The executable has to be in a separate folder from the source files in the same <br>
   parent directory for the paths to work .<br> <br>
-* Build in CLion 
+* Programm was developed in Clion
 
 ## General
 * I am using r_ and s_ to differentiate between the files associated with the <br>
 receiver and sender executable
 * Note to self: for your own sanity only work on s or r at a time
 * I created a shared folder which contains resources that are used by both S&R
-* allocating memory for both the ringbuffer structure and the ringbuffer itself
+* allocating memory for both the ringbuffer structure and the ringbuffer itself (SM)
 * The programms generate a file each on startup containing the pid for easierer process management
+The PID is also saved in the ringbuffer structure for COM between Processes
+* I am Using Semaphores for the Read and Write operations to ensure that the ringbuffer is not accessed by multiple processes at the same time
 * 
 
 ## Programming notes

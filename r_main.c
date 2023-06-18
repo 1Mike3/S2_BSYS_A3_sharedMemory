@@ -26,7 +26,7 @@ void * shmaddr_sharedMemoryAddress_1 = NULL;
 //not the actual buffer , just a second reference for cleanup
 ring_buffer * buf_cpy = NULL;
 
-void sigint_handler(int sig) {
+extern void sigint_handler(int sig) {
     FILE * file = fopen("R_Logs.txt", "a");
     fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
     fclose(file);
