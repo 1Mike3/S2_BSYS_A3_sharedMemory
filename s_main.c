@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include "sharedFunctions.h"
 
 
 
@@ -22,7 +23,7 @@ int shmid_sharedMemoryID_1 = -1;
 void * shmaddr_sharedMemoryAddress_1 = NULL;
 
 void sigint_handler(int sig){
-    FILE * file = fopen("S_Logs.txt", "a+");
+    FILE * file = fopen("S_Logs.txt", "a");
     fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
     fclose(file);
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
@@ -114,12 +115,14 @@ if(retVal_create_Shared_0 == -1) {
 ring_buffer * ringBuffer;
 ringBuffer = shmaddr_sharedMemoryAddress_0;
 ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
+
 #pragma endregion setting up the ringbuffer
 
 
 
 #pragma region init ringbuffer
     ringbuffer_init(ringBuffer, bufferSize);
+    ringBuffer->pid_sender = getpid();
 #if DEBUG
     printf("[S] Ringbuffer initialized\n");
 #endif

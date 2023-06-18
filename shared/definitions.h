@@ -19,7 +19,7 @@
 //Note as far as i could understand it from the assignment there is no need for the buffer to loop around, so
 //i will not implement it that way
 
-//TODO write all relevant ring buffer information into this struct so i can easieer share it between the processes and functions
+
 typedef struct ring_buffer {
     int head; //head is the next byte to read
     int tail;  //tail is the next free position
@@ -30,6 +30,8 @@ typedef struct ring_buffer {
     pthread_mutex_t * mutex; //Mutex for the mutual exclusion of the two processes
     bool overflowStateBool; //a indicator signaling that the buffer is full
     bool emptyStateBool; //a indicator signaling that the buffer is empty
+    pid_t pid_sender;  //the rescpective pids of the processes to enable communtication between them
+    pid_t pid_receiver;
 } ring_buffer;
 
 //SHARED MEMORY

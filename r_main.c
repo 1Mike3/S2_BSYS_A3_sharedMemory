@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-
+#include "sharedFunctions.h"
 
 
 //I am saving the memory addresses to be freed in the event of a Signal here for easyier access
@@ -27,7 +27,7 @@ void * shmaddr_sharedMemoryAddress_1 = NULL;
 
 
 void sigint_handler(int sig) {
-    FILE * file = fopen("R_Logs.txt", "w");
+    FILE * file = fopen("R_Logs.txt", "a");
     fprintf(file, "Received SIGINT, freeing and shutting down, PID = %i\n", getpid());
     fclose(file);
     cleanup(shmid_sharedMemoryID_0, shmaddr_sharedMemoryAddress_0);
@@ -110,6 +110,9 @@ key_t key_1 = ftok("../shared/keyGen2", 'R');
     ring_buffer * ringBuffer;
     ringBuffer = shmaddr_sharedMemoryAddress_0;
     ringBuffer->buffer = shmaddr_sharedMemoryAddress_1;
+
+
+    ringBuffer->pid_receiver = getpid();
 #pragma endregion create Ring Buffer
 
 
