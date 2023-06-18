@@ -18,3 +18,7 @@ The PID is also saved in the ringbuffer structure for COM between Processes
 
 ## Programming notes
 * create ringbuffer should be changed to initalize ringbuffer as it is kinda useless now after the changes
+
+## Known Bugs
+* The sender has to be started befre the receiver, i tried to implement this the other way around too but it didn't work
+* the sending, receiving and diff part worked just as in the assignment description 
